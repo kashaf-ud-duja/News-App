@@ -19,7 +19,7 @@ class _SplasState extends State<SplashScreen> {
     // TODO: implement initState
     super.initState();
     Timer(Duration(seconds: 2), (){
-      Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen() ));
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen() ));
     });
   }
 
