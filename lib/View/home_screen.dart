@@ -13,11 +13,20 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
+enum NewsFilterList {
+  bbcNews,
+  aryNews,
+  alJazeer,
+  fortune,
+  businessInsider,
+  cnn,
+}
+
 class _HomeScreenState extends State<HomeScreen> {
   NewsViewModel newsViewModel = NewsViewModel();
-  final format =  DateFormat('MM DD ,YYYY');
-
-
+  final format = DateFormat('MM DD ,YYYY');
+  NewsFilterList? selectedMenu;
+  String name = 'bbc-news';
   @override
   Widget build(BuildContext context) {
     //our screen size is 1
@@ -27,6 +36,66 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue,
+        actions: [
+          PopupMenuButton<NewsFilterList>(
+            icon: Icon(
+              Icons.more_vert,
+              color: Colors.black,
+              size: 30,
+            ),
+            onSelected: (NewsFilterList item) {
+              if (NewsFilterList.bbcNews.name == item.name) {
+                name = 'bbc-news';
+              }
+              if (NewsFilterList.aryNews.name == item.name) {
+                name = 'ary-news';
+              }
+              if (NewsFilterList.cnn.name == item.name) {
+                name = 'cnn';
+              }
+              if (NewsFilterList.businessInsider.name == item.name) {
+                name = 'business-insider';
+              }
+              if (NewsFilterList.alJazeer.name == item.name) {
+                name = 'al-jazeera-english';
+              }
+              if (NewsFilterList.fortune.name == item.name) {
+                name = 'fortune';
+              }
+              setState(() {
+                selectedMenu = item;
+              });
+            },
+            initialValue: selectedMenu,
+            itemBuilder: (BuildContext context) =>
+                <PopupMenuEntry<NewsFilterList>>[
+              PopupMenuItem<NewsFilterList>(
+                value: NewsFilterList.bbcNews,
+                child: Text('BBC News'),
+              ),
+              PopupMenuItem<NewsFilterList>(
+                value: NewsFilterList.aryNews,
+                child: Text('ARY News'),
+              ),
+              PopupMenuItem<NewsFilterList>(
+                value: NewsFilterList.alJazeer,
+                child: Text('AL Jazeera'),
+              ),
+              PopupMenuItem<NewsFilterList>(
+                value: NewsFilterList.fortune,
+                child: Text('Fortune'),
+              ),
+              PopupMenuItem<NewsFilterList>(
+                value: NewsFilterList.businessInsider,
+                child: Text('Business Insider'),
+              ),
+              PopupMenuItem<NewsFilterList>(
+                value: NewsFilterList.cnn,
+                child: Text('CNN'),
+              ),
+            ],
+          ),
+        ],
         leading: IconButton(
           onPressed: () {},
           icon: Image.asset(
@@ -46,9 +115,9 @@ class _HomeScreenState extends State<HomeScreen> {
           Container(
             height: height * 0.5,
             width: width,
-            // color: Colors.red,
+            //color: Colors.red,
             child: FutureBuilder<NewsChannelsHeadlinesModel>(
-              future: newsViewModel.fetchNewsChannelHeadlinesAPI(),
+              future: newsViewModel.fetchNewsChannelHeadlinesAPI(name),
               builder: (BuildContext context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
@@ -57,13 +126,24 @@ class _HomeScreenState extends State<HomeScreen> {
                       size: 40,
                     ),
                   );
-                } else {
+                }
+                if (snapshot.hasData && snapshot.data?.articles != null) {
                   return ListView.builder(
                       itemCount: snapshot.data!.articles!.length,
                       //it will change the scroll direction from vertical to horizontal
                       scrollDirection: Axis.horizontal,
                       itemBuilder: (context, index) {
-                        DateTime dateTime = DateTime.parse(snapshot.data!.articles![index].publishedAt.toString());
+                        // if (snapshot.data!.articles![index].publishedAt !=null) {
+                        //   DateTime dateTime = DateTime.parse(snapshot
+                        //       .data!.articles![index].publishedAt
+                        //       .toString());
+                        // } else {
+                        //   DateTime dateTime =
+                        //       DateTime.now(); // Fallback to current time
+                        // }
+                        DateTime dateTime = DateTime.parse(snapshot
+                            .data!.articles![index].publishedAt
+                            .toString());
                         return SizedBox(
                           child: Stack(
                             alignment: Alignment.center,
@@ -87,7 +167,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                     errorWidget: (context, url, error) => Icon(
                                       Icons.error_outline,
-                                      color: Colors.red,
+                                      color: Colors.transparent,
                                     ),
                                   ),
                                 ),
@@ -97,11 +177,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                 child: Opacity(
                                   opacity: 0.8,
                                   child: Card(
-                                    
                                     elevation: 20,
                                     color: Colors.white,
                                     shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12)),
+                                        borderRadius:
+                                            BorderRadius.circular(12)),
                                     child: Container(
                                       alignment: Alignment.bottomCenter,
                                       padding: EdgeInsets.all(15),
@@ -130,18 +210,24 @@ class _HomeScreenState extends State<HomeScreen> {
                                           ),
                                           Spacer(),
                                           Container(
-                                             width: width * 0.7,
+                                            width: width * 0.7,
                                             child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
                                               children: [
                                                 Text(
-                                                  snapshot.data!.articles![index]
-                                                      .source!.name
+                                                  snapshot
+                                                      .data!
+                                                      .articles![index]
+                                                      .source!
+                                                      .name
                                                       .toString(),
                                                   //THIS WILL SHOW THE TITLE IN MAXIUM 2 LINES
                                                   maxLines: 2,
                                                   // this will handle the over flow of the titile
-                                                  overflow: TextOverflow.ellipsis,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
                                                   style: GoogleFonts.poppins(
                                                       fontSize: 13,
                                                       color: Colors.black,
@@ -153,7 +239,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   //THIS WILL SHOW THE TITLE IN MAXIUM 2 LINES
                                                   maxLines: 2,
                                                   // this will handle the over flow of the titile
-                                                  overflow: TextOverflow.ellipsis,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
                                                   style: GoogleFonts.poppins(
                                                       fontSize: 12,
                                                       color: Colors.black,
@@ -173,6 +260,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         );
                       });
+                } else {
+                  return Center(child: Text("No data available."));
                 }
               },
             ),
