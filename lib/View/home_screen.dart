@@ -4,7 +4,8 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:news_app/Models/news_channels_headlines_model.dart';
-import 'package:news_app/View/View_Model/news_view_model.dart';
+import 'package:news_app/View/categories_screen.dart';
+import 'package:news_app/View_Model/news_view_model.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -12,21 +13,24 @@ class HomeScreen extends StatefulWidget {
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
-
+   
 enum NewsFilterList {
   bbcNews,
   aryNews,
   alJazeer,
-  fortune,
+  googleNews,
   businessInsider,
   cnn,
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+
   NewsViewModel newsViewModel = NewsViewModel();
   final format = DateFormat('MM DD ,YYYY');
   NewsFilterList? selectedMenu;
   String name = 'bbc-news';
+
+  
   @override
   Widget build(BuildContext context) {
     //our screen size is 1
@@ -59,8 +63,8 @@ class _HomeScreenState extends State<HomeScreen> {
               if (NewsFilterList.alJazeer.name == item.name) {
                 name = 'al-jazeera-english';
               }
-              if (NewsFilterList.fortune.name == item.name) {
-                name = 'fortune';
+              if (NewsFilterList.googleNews.name == item.name) {
+                name = 'google-news';
               }
               setState(() {
                 selectedMenu = item;
@@ -82,8 +86,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Text('AL Jazeera'),
               ),
               PopupMenuItem<NewsFilterList>(
-                value: NewsFilterList.fortune,
-                child: Text('Fortune'),
+                value: NewsFilterList.googleNews,
+                child: Text('Google News'),
               ),
               PopupMenuItem<NewsFilterList>(
                 value: NewsFilterList.businessInsider,
@@ -97,7 +101,9 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
         leading: IconButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context)=> CategoriesScreen()));
+          },
           icon: Image.asset(
             'Assets/icon.png',
             height: 30,
@@ -133,14 +139,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       //it will change the scroll direction from vertical to horizontal
                       scrollDirection: Axis.horizontal,
                       itemBuilder: (context, index) {
-                        // if (snapshot.data!.articles![index].publishedAt !=null) {
-                        //   DateTime dateTime = DateTime.parse(snapshot
-                        //       .data!.articles![index].publishedAt
-                        //       .toString());
-                        // } else {
-                        //   DateTime dateTime =
-                        //       DateTime.now(); // Fallback to current time
-                        // }
                         DateTime dateTime = DateTime.parse(snapshot
                             .data!.articles![index].publishedAt
                             .toString());
@@ -198,7 +196,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               snapshot
                                                   .data!.articles![index].title
                                                   .toString(),
-                                              //THIS WILL SHOW THE TITLE IN MAXIUM 2 LINES
+                                              //THIS WILL SHOW THE TITLE IN MAXMIUM 2 LINES
                                               maxLines: 2,
                                               // this will handle the over flow of the titile
                                               overflow: TextOverflow.ellipsis,
@@ -260,7 +258,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         );
                       });
-                } else {
+                } 
+                else {
                   return Center(child: Text("No data available."));
                 }
               },
