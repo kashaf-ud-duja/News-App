@@ -16,7 +16,6 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   final format = DateFormat('MM DD ,YYYY');
   String categryName = 'General';
 
-
   List<String> CategoriesList = [
     'General',
     'Sports',
@@ -40,25 +39,28 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                 itemCount: CategoriesList.length,
                 itemBuilder: (Context, index) {
                   return InkWell(
-                    onTap: (){
+                    onTap: () {
                       categryName = CategoriesList[index];
-                      setState(() {
-                        
-                      });
+                      setState(() {});
                     },
-
-
-
                     child: Padding(
                       padding: const EdgeInsets.only(right: 10.0),
                       child: Container(
                         decoration: BoxDecoration(
-                          color:  categryName == CategoriesList[index] ?  Colors.blue  : Colors.grey,
-                          borderRadius: BorderRadius.circular(10)
-                        ),
+                            color: categryName == CategoriesList[index]
+                                ? Colors.blue
+                                : Colors.grey,
+                            borderRadius: BorderRadius.circular(10)),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                          child: Center(child: Text(CategoriesList[index].toString(),style:GoogleFonts.poppins(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w400),)),
+                          child: Center(
+                              child: Text(
+                            CategoriesList[index].toString(),
+                            style: GoogleFonts.poppins(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400),
+                          )),
                         ),
                       ),
                     ),
