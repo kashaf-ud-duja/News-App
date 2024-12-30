@@ -1,6 +1,9 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:news_app/Models/categories_news_model.dart';
 import 'package:news_app/View/home_screen.dart';
 import 'package:news_app/View_Model/news_view_model.dart';
 
@@ -26,6 +29,9 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   ];
   @override
   Widget build(BuildContext context) {
+    final height = MediaQuery.sizeOf(context).height * 1;
+    final width = MediaQuery.sizeOf(context).width * 1;
+
     return Scaffold(
       appBar: AppBar(),
       body: Padding(
@@ -67,7 +73,66 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                   );
                 },
               ),
-            )
+            ),
+            SizedBox(height: 15,),
+            Expanded(
+              child: FutureBuilder<CategoriesNewsModel>(
+                future: newsViewModel.fetchCategoriesNewsApi(categryName),
+                builder: (BuildContext context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: SpinKitDoubleBounce(
+                        color: Colors.blue,
+                        size: 40,
+                      ),
+                    );
+                  }
+                  if (snapshot.hasData && snapshot.data?.articles != null) {
+                    return ListView.builder(
+                        itemCount: snapshot.data!.articles!.length,
+                        //it will change the scroll direction from vertical to horizontal
+                        scrollDirection: Axis.vertical,
+                        itemBuilder: (context, index) {
+                          DateTime dateTime = DateTime.parse(snapshot
+                              .data!.articles![index].publishedAt
+                              .toString());
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 15.0),
+                            child: Row(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(15),
+                                  child: CachedNetworkImage(
+                                    imageUrl: snapshot
+                                        .data!.articles![index].urlToImage
+                                        .toString(),
+                                    fit: BoxFit.cover,
+                                    height: height * 0.18,
+                                    width: width * 0.3,
+                                    placeholder: (context, url) => Container(
+                                      child: Center(
+                                        child: SpinKitDoubleBounce(
+                                          color: Colors.blue,
+                                          size: 40,
+                                        ),
+                                      ),
+                                    ),
+                                    errorWidget: (context, url, error) => Icon(
+                                      Icons.error_outline,
+                                      color: Colors.transparent,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        });
+                  } else {
+                    return Center(child: Text("No data available."));
+                  }
+                },
+              ),
+            ),
           ],
         ),
       ),
