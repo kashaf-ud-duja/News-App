@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:news_app/Models/categories_news_model.dart';
 import 'package:news_app/Models/news_channels_headlines_model.dart';
 import 'package:news_app/View/categories_screen.dart';
 import 'package:news_app/View_Model/news_view_model.dart';
@@ -13,7 +14,7 @@ class HomeScreen extends StatefulWidget {
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
-   
+
 enum NewsFilterList {
   bbcNews,
   aryNews,
@@ -24,13 +25,11 @@ enum NewsFilterList {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-
   NewsViewModel newsViewModel = NewsViewModel();
   final format = DateFormat('MM DD ,YYYY');
   NewsFilterList? selectedMenu;
   String name = 'bbc-news';
 
-  
   @override
   Widget build(BuildContext context) {
     //our screen size is 1
@@ -102,7 +101,8 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
         leading: IconButton(
           onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context)=> CategoriesScreen()));
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => CategoriesScreen()));
           },
           icon: Image.asset(
             'Assets/icon.png',
@@ -112,13 +112,14 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         title: Text(
           "News",
-          style: GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.bold),
+          style: GoogleFonts.poppins(
+              fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
         ),
         centerTitle: true, // Center the title in the AppBar
       ),
       body: ListView(
         children: [
-          Container(
+          SizedBox(
             height: height * 0.5,
             width: width,
             //color: Colors.red,
@@ -257,14 +258,136 @@ class _HomeScreenState extends State<HomeScreen> {
                             ],
                           ),
                         );
+                        
                       });
-                } 
-                else {
+                } else {
                   return Center(child: Text("No data available."));
                 }
               },
             ),
-          )
+          ),
+          Padding(
+            padding: const EdgeInsets.all(25.0),
+            child: FutureBuilder<CategoriesNewsModel>(
+                            future:
+                                newsViewModel.fetchCategoriesNewsApi('General'),
+                            builder: (BuildContext context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const Center(
+                                  child: SpinKitDoubleBounce(
+                                    color: Colors.blue,
+                                    size: 40,
+                                  ),
+                                );
+                              }
+                              if (snapshot.hasData &&
+                                  snapshot.data?.articles != null) {
+                                return ListView.builder(
+                                  shrinkWrap: true,
+                                    itemCount: snapshot.data!.articles!.length,
+                                    //it will change the scroll direction from vertical to horizontal
+                                    scrollDirection: Axis.vertical,
+                                    itemBuilder: (context, index) {
+                                      DateTime dateTime = DateTime.parse(snapshot
+                                          .data!.articles![index].publishedAt
+                                          .toString());
+                                      return Padding(
+                                        padding:
+                                            const EdgeInsets.only(bottom: 15.0),
+                                        child: Row(
+                                          children: [
+                                            ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(15),
+                                              child: CachedNetworkImage(
+                                                imageUrl: snapshot.data!
+                                                    .articles![index].urlToImage
+                                                    .toString(),
+                                                fit: BoxFit.cover,
+                                                height: height * 0.18,
+                                                width: width * 0.3,
+                                                placeholder: (context, url) =>
+                                                    Container(
+                                                  child: Center(
+                                                    child: SpinKitDoubleBounce(
+                                                      color: Colors.blue,
+                                                      size: 40,
+                                                    ),
+                                                  ),
+                                                ),
+                                                errorWidget:
+                                                    (context, url, error) => Icon(
+                                                  Icons.error_outline,
+                                                  color: Colors.transparent,
+                                                ),
+                                              ),
+                                            ),
+                                            Expanded(
+                                                child: Container(
+                                              height: height * 0.18,
+                                              padding: EdgeInsets.only(left: 15),
+                                              child: Column(
+                                                children: [
+                                                  Text(
+                                                    snapshot.data!
+                                                        .articles![index].title
+                                                        .toString(),
+                                                    maxLines: 3,
+                                                    style: GoogleFonts.poppins(
+                                                        fontSize: 15,
+                                                        color: Colors.black54,
+                                                        fontWeight:
+                                                            FontWeight.w700),
+                                                  ),
+                                                  Spacer(),
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      Text(
+                                                        snapshot
+                                                            .data!
+                                                            .articles![index]
+                                                            .source!
+                                                            .name
+                                                            .toString(),
+                                                        style:
+                                                            GoogleFonts.poppins(
+                                                                fontSize: 13,
+                                                                color: Colors
+                                                                    .black54,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w700),
+                                                      ),
+                                                      Text(
+                                                        format.format(dateTime),
+                                                        style:
+                                                            GoogleFonts.poppins(
+                                                                fontSize: 15,
+                                                                color: Colors
+                                                                    .black54,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w700),
+                                                      ),
+                                                    ],
+                                                  )
+                                                ],
+                                              ),
+                                            ))
+                                          ],
+                                        ),
+                                      );
+                                    });
+                              } else {
+                                return Center(child: Text("No data available."));
+                              }
+                            },
+                          ),
+          ),
         ],
       ),
     );

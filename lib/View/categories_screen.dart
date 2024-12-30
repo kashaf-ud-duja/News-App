@@ -74,7 +74,9 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                 },
               ),
             ),
-            SizedBox(height: 15,),
+            SizedBox(
+              height: 15,
+            ),
             Expanded(
               child: FutureBuilder<CategoriesNewsModel>(
                 future: newsViewModel.fetchCategoriesNewsApi(categryName),
@@ -123,6 +125,47 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                                     ),
                                   ),
                                 ),
+                                Expanded(
+                                    child: Container(
+                                  height: height * 0.18,
+                                  padding: EdgeInsets.only(left: 15),
+                                  child: Column(
+                                    children: [
+                                      Text(
+                                        snapshot.data!.articles![index].title
+                                            .toString(),
+                                        maxLines: 3,
+                                        style: GoogleFonts.poppins(
+                                            fontSize: 15,
+                                            color: Colors.black54,
+                                            fontWeight: FontWeight.w700),
+                                      ),
+                                      Spacer(),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            snapshot.data!.articles![index]
+                                                .source!.name
+                                                .toString(),
+                                            style: GoogleFonts.poppins(
+                                                fontSize: 13,
+                                                color: Colors.black54,
+                                                fontWeight: FontWeight.w700),
+                                          ),
+                                          Text(
+                                            format.format(dateTime),
+                                            style: GoogleFonts.poppins(
+                                                fontSize: 15,
+                                                color: Colors.black54,
+                                                fontWeight: FontWeight.w700),
+                                          ),
+                                        ],
+                                      )
+                                    ],
+                                  ),
+                                ))
                               ],
                             ),
                           );
